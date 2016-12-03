@@ -11,13 +11,13 @@ proc copyList[T](first:Node[T], last:Node[T]):Node[T]=
         result = nil    
     else:
         var
-            prev = makeNode(first.data)
+            prev = makeNode(first.data, nil)
             head = prev
             current = first.next
             newCurrent : Node[T]
 
         while(current != last):
-            newCurrent = makeNode(current.data)
+            newCurrent = makeNode(current.data, nil)
             prev.next = newCurrent
             prev = newCurrent
             current = current.next
