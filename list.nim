@@ -12,10 +12,13 @@ proc makeNode[T](data: T, next:Node[T]): Node[T] = Node[T](data: data, next:next
 proc makeList[T](head:Node[T]):List[T] = List[T](head:head)
 
 #adds element to front
-proc pushFront[T](list:List[T], data:T) = 
+#always returns a new list
+proc pushFront[T](list:List[T], data:T):List[T] = 
+        var newList = makeList[T](nil)
         var next = list.head
         var node =  makeNode(data, next)      
-        list.head = node
+        newList.head = node        
+        result = newList
 
 # copies a range [first,last) and returns a head to
 # new created list
@@ -44,6 +47,7 @@ proc traverse[T](first:Node[T], last:Node[T])=
         node = node.next
 
 
+
 var node1 = makeNode(5, nil)
 var node2 = makeNode(6, node1)
 
@@ -56,8 +60,7 @@ traverse(copyList[int](nil,nil), nil)
 traverse(copyList(node2, nil), nil)
 
 var list = makeList[int](nil)
-
-list.pushFront(10)
-list.pushFront(20)
+           .pushFront(10)
+           .pushFront(20)
 
 traverse(list.head, nil)
