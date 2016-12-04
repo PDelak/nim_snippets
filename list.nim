@@ -1,19 +1,19 @@
-type Node[T] = ref object
-  data:T
+type Node*[T] = ref object
+  data*:T
   next:Node[T]
 
-type List[T] = ref object
+type List*[T] = ref object
   head:Node[T]
 
 #create a new node
-proc makeNode[T](data: T, next:Node[T]): Node[T] = Node[T](data: data, next:next)
+proc makeNode*[T](data: T, next:Node[T]): Node[T] = Node[T](data: data, next:next)
 
 #create a list passing node as parameter
-proc makeList[T](head:Node[T]):List[T] = List[T](head:head)
+proc makeList*[T](head:Node[T]):List[T] = List[T](head:head)
 
 #adds element to front
 #always returns a new list
-proc pushFront[T](list:List[T], data:T):List[T] = 
+proc pushFront*[T](list:List[T], data:T):List[T] = 
         var newList = makeList[T](nil)
         var next = list.head
         var node =  makeNode(data, next)      
@@ -22,7 +22,7 @@ proc pushFront[T](list:List[T], data:T):List[T] =
 
 # copies a range [first,last) and returns a head to
 # new created list
-proc copyList[T](first:Node[T], last:Node[T]):Node[T]=
+proc copyList*[T](first:Node[T], last:Node[T]):Node[T]=
     if(first == nil): 
         result = nil    
     else:
@@ -39,28 +39,38 @@ proc copyList[T](first:Node[T], last:Node[T]):Node[T]=
             current = current.next
         result = head
     
+# proc remove[T](data:T) =
+# 
 
-proc traverse[T](first:Node[T], last:Node[T])=
+# traverses range [first,last) and calls p (Node[T]) for each node
+proc traverse*[T](first:Node[T], last:Node[T], p:proc(node:Node[T]))=
     var node = first
     while(node != last):
-        echo node.data
+        p(node)
         node = node.next
 
+# traverses whole list
+proc traverse*[T](list:List[T], p:proc(node:Node[T]))=
+    traverse(list.head, nil, p)
 
 
-var node1 = makeNode(5, nil)
-var node2 = makeNode(6, node1)
+proc traverseCallback[T](node:Node[T]) = echo node.data
 
-var node = node2
-traverse(node, nil)
+when isMainModule:
 
-var newList = copyList(node, node1)
-traverse(newList, nil)
-traverse(copyList[int](nil,nil), nil)
-traverse(copyList(node2, nil), nil)
+    var node1 = makeNode(5, nil)
+    var node2 = makeNode(6, node1)
 
-var list = makeList[int](nil)
-           .pushFront(10)
-           .pushFront(20)
+    var node = node2
+    traverse(node, nil, traverseCallback)
 
-traverse(list.head, nil)
+    var newList = copyList(node, node1)
+    traverse(newList, nil, traverseCallback)
+    traverse(copyList[int](nil,nil), nil, traverseCallback)
+    traverse(copyList(node2, nil), nil, traverseCallback)
+
+    var list = makeList[int](nil).pushFront(10).pushFront(20)
+    var list2 = list.pushFront(30)
+    
+    traverse(list2, traverseCallback)
+
