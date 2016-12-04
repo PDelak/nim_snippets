@@ -2,10 +2,23 @@ type Node[T] = ref object
   data:T
   next:Node[T]
 
+type List[T] = ref object
+  head:Node[T]
 
-proc makeNode[T](data: T, next:Node[T]): Node[T] =
-  Node[T](data: data, next:next)
+#create a new node
+proc makeNode[T](data: T, next:Node[T]): Node[T] = Node[T](data: data, next:next)
 
+#create a list passing node as parameter
+proc makeList[T](head:Node[T]):List[T] = List[T](head:head)
+
+#adds element to front
+proc pushFront[T](list:List[T], data:T) = 
+        var next = list.head
+        var node =  makeNode(data, next)      
+        list.head = node
+
+# copies a range [first,last) and returns a head to
+# new created list
 proc copyList[T](first:Node[T], last:Node[T]):Node[T]=
     if(first == nil): 
         result = nil    
@@ -41,3 +54,10 @@ var newList = copyList(node, node1)
 traverse(newList, nil)
 traverse(copyList[int](nil,nil), nil)
 traverse(copyList(node2, nil), nil)
+
+var list = makeList[int](nil)
+
+list.pushFront(10)
+list.pushFront(20)
+
+traverse(list.head, nil)
