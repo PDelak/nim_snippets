@@ -1,3 +1,9 @@
+# file contains implementation of persistent list
+
+# two main operations are :
+# pushFront
+# remove
+
 type Node*[T] = ref object
   data*:T
   next:Node[T]
@@ -11,6 +17,8 @@ proc makeNode*[T](data: T, next:Node[T]): Node[T] = Node[T](data: data, next:nex
 #create a list passing node as parameter
 proc makeList*[T](head:Node[T]):List[T] = List[T](head:head)
 
+proc makeList*[T]():List[T] = List[T](head:nil)
+
 #adds element to front
 #always returns a new list
 proc pushFront*[T](list:List[T], data:T):List[T] = 
@@ -20,27 +28,48 @@ proc pushFront*[T](list:List[T], data:T):List[T] =
         newList.head = node        
         result = newList
 
-# copies a range [first,last) and returns a head to
-# new created list
-proc copyList*[T](first:Node[T], last:Node[T]):Node[T]=
+# find specific element in list
+proc find*[T](list:List[T], data:T):Node[T] =
+    var node = list.head
+    while(node != nil):
+        if(node.data == data):break
+        node = node.next    
+    result = node
+
+# copies a range [first,last) and returns a pair (head, last copied node)
+proc copyList*[T](first:Node[T], last:Node[T]):tuple[first:Node[T], last:Node[T]]=
     if(first == nil): 
-        result = nil    
+        result = (first:nil,last:nil)    
     else:
         var
             prev = makeNode(first.data, nil)
             head = prev
             current = first.next
-            newCurrent : Node[T]
+            newCurrent : Node[T] = prev
 
         while(current != last):
             newCurrent = makeNode(current.data, nil)
             prev.next = newCurrent
             prev = newCurrent
             current = current.next
-        result = head
+        result = (first:head, last:newCurrent)
     
-# proc remove[T](data:T) =
-# 
+    
+proc remove*[T](list:List[T], data:T):List[T]  =
+    var node = list.find(data)
+    # list empty case
+    if (node == nil):         
+        result = makeList[T](nil)
+    # list with one element case
+    elif (list.head.data == data):
+        var head = list.head.next
+        result = makeList[T](head)        
+    # list with more than one element
+    else:
+        var listRange = copyList(list.head, node);
+        listRange.last.next = node.next
+        result = makeList[T](listRange.first)        
+
 
 # traverses range [first,last) and calls p (Node[T]) for each node
 proc traverse*[T](first:Node[T], last:Node[T], p:proc(node:Node[T]))=
@@ -58,19 +87,22 @@ proc traverseCallback[T](node:Node[T]) = echo node.data
 
 when isMainModule:
 
-    var node1 = makeNode(5, nil)
-    var node2 = makeNode(6, node1)
+    var list_1 = makeList[int]().pushFront(10).pushFront(20).pushFront(30)
 
-    var node = node2
-    traverse(node, nil, traverseCallback)
+    var list_2 = list_1.pushFront(40)
 
-    var newList = copyList(node, node1)
-    traverse(newList, nil, traverseCallback)
-    traverse(copyList[int](nil,nil), nil, traverseCallback)
-    traverse(copyList(node2, nil), nil, traverseCallback)
+    assert(list_1.find(10) != nil)
+    assert(list_1.find(20) != nil)
+    assert(list_1.find(30) != nil)
+    assert(list_1.find(40) == nil)
 
-    var list = makeList[int](nil).pushFront(10).pushFront(20)
-    var list2 = list.pushFront(30)
-    
-    traverse(list2, traverseCallback)
+    assert(list_2.find(40) != nil)
+    assert(list_2.find(10) != nil)
+    assert(list_2.find(20) != nil)
+    assert(list_2.find(30) != nil)
 
+    var list_3 = list_2.remove(10)
+    assert(list_3.find(10) == nil)
+    assert(list_3.find(20) != nil)
+    assert(list_3.find(30) != nil)
+    assert(list_3.find(40) != nil)
