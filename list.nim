@@ -6,10 +6,10 @@
 
 type Node*[T] = ref object
   data*:T
-  next:Node[T]
+  next*:Node[T]
 
 type List*[T] = ref object
-  head:Node[T]
+  head*:Node[T]
 
 #create a new node
 proc makeNode*[T](data: T, next:Node[T]): Node[T] = Node[T](data: data, next:next)
